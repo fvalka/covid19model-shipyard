@@ -6,3 +6,4 @@ global_resources:
     - registry.hub.docker.com
   docker_images:
   - fvalka/covid19model:latest
+  - fvalka/github-deploy:latest
