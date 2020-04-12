@@ -37,4 +37,3 @@ job_specifications:
         is_file_share: true
         exclude:
         - ".shipyard.envlist"
-        condition: tasksuccess
