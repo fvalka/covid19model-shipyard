@@ -1,0 +1,24 @@
+job_specifications:
+- id: covid19modeljob
+  max_wall_time: 12:00:00
+  job_preparation:
+    command: docker pull fvalka/covid19model:latest
+  tasks:
+  - id: covid19runmodel
+    docker_image: fvalka/covid19model:latest
+    command: "Rscript web-fetch-and-run.r"
+    environment_variables: 
+      FULL: "TRUE"
+    additional_docker_run_options:
+    - -w /var/model
+    - -v $(pwd)/figures:/var/model/figures
+    - -v $(pwd)/results:/var/model/results
+    - -v $(pwd)/web:/var/model/web
+    output_data:
+      azure_storage:
+      - storage_account_settings: resultstorage
+        remote_path: covid19model
+        is_file_share: true
+        exclude:
+        - ".shipyard.envlist"
+        condition: tasksuccess

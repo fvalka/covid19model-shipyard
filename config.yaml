@@ -1,0 +1,8 @@
+batch_shipyard:
+  storage_account_settings: batchstorage
+global_resources:
+  additional_registries:
+    docker:
+    - registry.hub.docker.com
+  docker_images:
+  - fvalka/covid19model:latest
