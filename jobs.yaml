@@ -22,3 +22,19 @@ job_specifications:
         exclude:
         - ".shipyard.envlist"
         condition: tasksuccess
+  - id: gitdeploy
+    docker_image: fvalka/github-deploy:latest
+    environment_variables:
+      ACCESS_TOKEN: <secret GitHub access token>
+      REPO: fvalka/covid19gittesting
+      BRANCH: master
+    depends_on:
+    - covid19runmodel
+    input_data:
+      azure_storage:
+      - storage_account_settings: resultstorage
+        remote_path: covid19model/wd/web
+        is_file_share: true
+        exclude:
+        - ".shipyard.envlist"
+        condition: tasksuccess
