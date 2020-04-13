@@ -17,4 +17,4 @@ pool_specification:
       name: active_tasks
       maximum_vm_count:
         dedicated: 0
-        low_priority: 1
+        low_priority: 3

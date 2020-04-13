@@ -4,7 +4,7 @@ job_specifications:
   max_task_retries: 2
   recurrence:
     schedule:
-      do_not_run_until: "2020-04-13T15:10:00Z"
+      do_not_run_until: "2020-04-14T14:00:00Z"
       recurrence_interval: 1.00:00:00
   auto_complete: true
   job_preparation:
@@ -33,7 +33,7 @@ job_specifications:
     environment_variables:
       ACCESS_TOKEN: <GitHub access token>
       REPO: ImperialCollegeLondon/covid19estimates
-      BRANCH: data
+      BRANCH: data-testing
     depends_on:
     - covid19runmodel
     command: wd/web/.
@@ -41,6 +41,53 @@ job_specifications:
       azure_storage:
       - storage_account_settings: resultstorage
         remote_path: covid19model/wd/web
+        is_file_share: true
+        exclude:
+        - ".shipyard.envlist"
+
+# Perform a secondary run for data validation, simple convergence check
+- id: covid19modeljob-secondary
+  max_wall_time: 07:00:00
+  max_task_retries: 2
+  recurrence:
+    schedule:
+      do_not_run_until: "2020-04-14T14:00:00Z"
+      recurrence_interval: 1.00:00:00
+  auto_complete: true
+  job_preparation:
+    command: docker pull fvalka/covid19model:latest
+  tasks:
+  - id: covid19runmodel-secondary
+    docker_image: fvalka/covid19model:latest
+    command: "Rscript web-fetch-and-run.r"
+    environment_variables: 
+      FULL: "TRUE"
+    additional_docker_run_options:
+    - -w /var/model
+    - -v $(pwd)/figures:/var/model/figures
+    - -v $(pwd)/results:/var/model/results
+    - -v $(pwd)/web:/var/model/web
+    output_data:
+      azure_storage:
+      - storage_account_settings: resultstorage
+        remote_path: covid19model-secondary
+        is_file_share: true
+        exclude:
+        - ".shipyard.envlist"
+        condition: tasksuccess
+  - id: gitdeploy-secondary
+    docker_image: fvalka/github-deploy:latest
+    environment_variables:
+      ACCESS_TOKEN: <GitHub access token>
+      REPO: ImperialCollegeLondon/covid19estimates
+      BRANCH: data-secondary
+    depends_on:
+    - covid19runmodel-secondary
+    command: wd/web/.
+    input_data:
+      azure_storage:
+      - storage_account_settings: resultstorage
+        remote_path: covid19model-secondary/wd/web
         is_file_share: true
         exclude:
         - ".shipyard.envlist"
