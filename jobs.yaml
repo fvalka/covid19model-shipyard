@@ -4,7 +4,7 @@ job_specifications:
   max_task_retries: 2
   recurrence:
     schedule:
-      do_not_run_until: "2020-04-14T14:00:00Z"
+      do_not_run_until: "2020-04-13T15:10:00Z"
       recurrence_interval: 1.00:00:00
   auto_complete: true
   job_preparation:
