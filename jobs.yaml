@@ -4,8 +4,9 @@ job_specifications:
   max_task_retries: 2
   recurrence:
     schedule:
-      do_not_run_until: 2020-04-13T14:00:00Z
+      do_not_run_until: "2020-04-14T14:00:00Z"
       recurrence_interval: 1.00:00:00
+  auto_complete: true
   job_preparation:
     command: docker pull fvalka/covid19model:latest
   tasks:
@@ -30,11 +31,12 @@ job_specifications:
   - id: gitdeploy
     docker_image: fvalka/github-deploy:latest
     environment_variables:
-      ACCESS_TOKEN: <secret GitHub access token>
-      REPO: fvalka/covid19gittesting
-      BRANCH: master
+      ACCESS_TOKEN: <GitHub access token>
+      REPO: ImperialCollegeLondon/covid19estimates
+      BRANCH: data
     depends_on:
     - covid19runmodel
+    command: wd/web/.
     input_data:
       azure_storage:
       - storage_account_settings: resultstorage
