@@ -12,10 +12,10 @@ pool_specification:
   ssh:
     username: shipyard
   autoscale:
-    evaluation_interval: 00:15:00
+    evaluation_interval: 00:10:00
     scenario:
       name: pending_tasks
-      sample_lookback_interval: 00:30:00
+      sample_lookback_interval: 00:20:00
       maximum_vm_count:
         dedicated: 2
         low_priority: 0
