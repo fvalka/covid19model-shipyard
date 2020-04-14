@@ -1,7 +1,7 @@
 job_specifications:
 - id: covid19modeljob
-  max_wall_time: 07:00:00
-  max_task_retries: 2
+  max_wall_time: 11:00:00
+  max_task_retries: 1
   recurrence:
     schedule:
       do_not_run_until: "2020-04-14T14:00:00Z"
@@ -31,9 +31,9 @@ job_specifications:
   - id: gitdeploy
     docker_image: fvalka/github-deploy:latest
     environment_variables:
-      ACCESS_TOKEN: <GitHub access token>
+      ACCESS_TOKEN: token
       REPO: ImperialCollegeLondon/covid19estimates
-      BRANCH: data-testing
+      BRANCH: data
     depends_on:
     - covid19runmodel
     command: wd/web/.
@@ -78,7 +78,7 @@ job_specifications:
   - id: gitdeploy-secondary
     docker_image: fvalka/github-deploy:latest
     environment_variables:
-      ACCESS_TOKEN: <GitHub access token>
+      ACCESS_TOKEN: token
       REPO: ImperialCollegeLondon/covid19estimates
       BRANCH: data-secondary
     depends_on:
