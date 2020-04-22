@@ -1,10 +1,10 @@
 job_specifications:
-- id: covid19modeljob
+- id: covid19modeljob-v2-1
   max_wall_time: 11:00:00
   max_task_retries: 2
   recurrence:
     schedule:
-      do_not_run_until: "2020-04-14T13:55:00Z"
+      do_not_run_until: "2020-04-22T15:15:00Z"
       recurrence_interval: 1.00:00:00
   auto_complete: true
   job_preparation:
@@ -17,8 +17,8 @@ job_specifications:
       FULL: "TRUE"
     additional_docker_run_options:
     - -w /var/model
-    - -v $(pwd)/figures:/var/model/figures
-    - -v $(pwd)/results:/var/model/results
+    - -v $(pwd)/v2/$(date +"%Y-%m-%d-%H%M")/figures:/var/model/figures
+    - -v $(pwd)/v2/$(date +"%Y-%m-%d-%H%M")/results:/var/model/results
     - -v $(pwd)/web:/var/model/web
     output_data:
       azure_storage:
@@ -31,8 +31,8 @@ job_specifications:
   - id: gitdeploy
     docker_image: fvalka/github-deploy:latest
     environment_variables:
-      ACCESS_TOKEN: token
-      REPO: ImperialCollegeLondon/covid19estimates
+      ACCESS_TOKEN: <token>
+      REPO: mrc-ide/covid19estimates
       BRANCH: data
     depends_on:
     - covid19runmodel
@@ -44,14 +44,13 @@ job_specifications:
         is_file_share: true
         exclude:
         - ".shipyard.envlist"
-
 # Secondary run for verification purposes
-- id: covid19modeljob-secondary
+- id: covid19modeljob-secondary-v2-1
   max_wall_time: 11:00:00
   max_task_retries: 2
   recurrence:
     schedule:
-      do_not_run_until: "2020-04-14T13:55:00Z"
+      do_not_run_until: "2020-04-22T15:15:00Z"
       recurrence_interval: 1.00:00:00
   auto_complete: true
   job_preparation:
@@ -60,12 +59,12 @@ job_specifications:
   - id: covid19runmodel-secondary
     docker_image: fvalka/covid19model:latest
     command: "Rscript web-fetch-and-run.r"
-    environment_variables: 
+    environment_variables:
       FULL: "TRUE"
     additional_docker_run_options:
     - -w /var/model
-    - -v $(pwd)/figures:/var/model/figures
-    - -v $(pwd)/results:/var/model/results
+    - -v $(pwd)/v2/$(date +"%Y-%m-%d-%H%M")/figures:/var/model/figures
+    - -v $(pwd)/v2/$(date +"%Y-%m-%d-%H%M")/results:/var/model/results
     - -v $(pwd)/web:/var/model/web
     output_data:
       azure_storage:
@@ -78,8 +77,8 @@ job_specifications:
   - id: gitdeploy-secondary
     docker_image: fvalka/github-deploy:latest
     environment_variables:
-      ACCESS_TOKEN: token
-      REPO: ImperialCollegeLondon/covid19estimates
+      ACCESS_TOKEN: <token>
+      REPO: mrc-ide/covid19estimates
       BRANCH: data-secondary
     depends_on:
     - covid19runmodel-secondary
@@ -88,54 +87,6 @@ job_specifications:
       azure_storage:
       - storage_account_settings: resultstorage
         remote_path: covid19model-secondary/wd/web
-        is_file_share: true
-        exclude:
-        - ".shipyard.envlist"
-
-# Testing and debuging job
-- id: covid19modeljob-testing
-  max_wall_time: 11:00:00
-  job_preparation:
-    command: docker pull fvalka/covid19model:latest
-  tasks:
-  - id: covid19runmodel-testing
-    docker_image: fvalka/covid19model:latest
-    command: "Rscript web-fetch-and-run.r"
-    environment_variables: 
-      DEBUG: "TRUE"
-    additional_docker_run_options:
-    - -w /var/model
-    - -v $(pwd)/figures:/var/model/figures
-    - -v $(pwd)/results:/var/model/results
-    - -v $(pwd)/web:/var/model/web
-    output_data:
-      azure_storage:
-      - storage_account_settings: resultstorage
-        remote_path: covid19model-testing/current_web
-        local_path: wd/web
-        is_file_share: true
-        exclude:
-        - ".shipyard.envlist"
-        condition: tasksuccess
-      - storage_account_settings: resultstorage
-        remote_path: covid19model-testing/v2/$(date -Iminutes)
-        is_file_share: true
-        exclude:
-        - ".shipyard.envlist"
-        condition: tasksuccess
-  - id: gitdeploy-testing
-    docker_image: fvalka/github-deploy:latest
-    environment_variables:
-      ACCESS_TOKEN: <GitHub access token>
-      REPO: ImperialCollegeLondon/covid19estimates
-      BRANCH: data-testing
-    depends_on:
-    - covid19runmodel-testing
-    command: current_web/.
-    input_data:
-      azure_storage:
-      - storage_account_settings: resultstorage
-        remote_path: covid19model-testing/current_web
         is_file_share: true
         exclude:
         - ".shipyard.envlist"

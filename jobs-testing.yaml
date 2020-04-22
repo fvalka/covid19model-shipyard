@@ -1,0 +1,41 @@
+job_specifications:
+# Testing and debuging job
+- id: covid19modeljob-testing
+  max_wall_time: 11:00:00
+  job_preparation:
+    command: docker pull fvalka/covid19model:latest
+  tasks:
+  - id: covid19runmodel-testing
+    docker_image: fvalka/covid19model:latest
+    command: "Rscript web-fetch-and-run.r"
+    environment_variables:
+      FULL: "TRUE"
+    additional_docker_run_options:
+    - -w /var/model
+    - -v $(pwd)/v2/$(date +"%Y-%m-%d-%H%M")/figures:/var/model/figures
+    - -v $(pwd)/v2/$(date +"%Y-%m-%d-%H%M")/results:/var/model/results
+    - -v $(pwd)/web:/var/model/web
+    output_data:
+      azure_storage:
+      - storage_account_settings: resultstorage
+        remote_path: covid19model-testing
+        is_file_share: true
+        exclude:
+        - ".shipyard.envlist"
+        condition: tasksuccess
+  - id: gitdeploy-testing
+    docker_image: fvalka/github-deploy:latest
+    environment_variables:
+      ACCESS_TOKEN: <token>
+      REPO: fvalka/covid19gittesting
+      BRANCH: data-testing
+    depends_on:
+    - covid19runmodel-testing
+    command: wd/web/.
+    input_data:
+      azure_storage:
+      - storage_account_settings: resultstorage
+        remote_path: covid19model-testing/wd/web
+        is_file_share: true
+        exclude:
+        - ".shipyard.envlist"

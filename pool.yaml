@@ -8,7 +8,7 @@ pool_specification:
   vm_count:
     dedicated: 0
     low_priority: 0
-  vm_size: Standard_F8
+  vm_size: Standard_F4s_v2
   ssh:
     username: shipyard
   autoscale:
@@ -17,5 +17,5 @@ pool_specification:
       name: pending_tasks
       sample_lookback_interval: 00:20:00
       maximum_vm_count:
-        dedicated: 2
-        low_priority: 0
+        dedicated: 0
+        low_priority: 3
