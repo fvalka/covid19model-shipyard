@@ -37,8 +37,15 @@ When this command has finished you will also have created an SSH key in the file
 ### Create the job
 Once the pool setup is finished the job can be created using the following Shipyard Batch command:
 
+Open the jobs.yaml file and set the `do_not_run_until` for both jobs to a date in the future.
+
 ```
 shipyard jobs add --recreate
 ```
 
 The same command can also be used if you want to perform any updates to the job. 
+
+Testing jobs can be added using this command
+```
+shipyard jobs add --jobs jobs-testing.yaml
+```
